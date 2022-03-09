@@ -41,7 +41,7 @@ Example usage:
 
 Typing `./recon-img.sh -h` provides the following help menu (shown below):
 
-```bash
+```
 
   Usage: recon-img.sh <required arguments> [optional arguments]
 
