@@ -7,7 +7,9 @@ Essentially, a directory containing NIFTI files is globbed to perform super-reso
 
 The steps of template image selection, and masking are performed in an automated fashion.
 
-**NOTE**: Template image selection is performed in a manner to ensure maximal brain coverage, and thus favors MR images with more voxels.
+**NOTE**: 
+* Template image selection is performed in a manner to ensure maximal brain coverage, and thus favors MR images with more voxels.
+* The script `wrapper-recon.sh` is a wrapper script designed to be used on a LSF HPC located at CCHMC.
 
 # Installation
 The scripts are stand-alone wrapper scripts, and thus require no installation.
