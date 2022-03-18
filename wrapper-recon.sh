@@ -29,21 +29,21 @@ mods=( T2 T1 )
 subs=( $(cd ${parent_img_dir}; ls -d s*) )
 
 for sub in ${subs[@]}; do
-	for mod in ${mods[@]}; do
-		for resolution in ${resolutions[@]}; do
+  for mod in ${mods[@]}; do
+    for resolution in ${resolutions[@]}; do
 
-			imgdir=$(realpath ${parent_img_dir}/${sub}/*20*)
-			outdir=${parent_out_dir}/resolution-${resolution}mm/${sub}
+      imgdir=$(realpath ${parent_img_dir}/${sub}/*20*)
+      outdir=${parent_out_dir}/resolution-${resolution}mm/${sub}
 
-			echo "Processing: sub: ${sub} mod: ${mod} resolution: ${resolution}"
+      echo "Processing: sub: ${sub} mod: ${mod} resolution: ${resolution}"
 
-			bsub -M 64000 -W 10000 -n 1 -R "span[hosts=1]" -J ${sub}-${resolution} \
-			${scriptsdir}/recon-img.sh \
-			--img-dir ${imgdir} \
-			--out ${outdir}/${sub}-${mod}.nii.gz \
-			--resolution ${resolution} \
-			--glob-str ${mod}
-		done
-	done
+      bsub -M 64000 -W 10000 -n 1 -R "span[hosts=1]" -J ${sub}-${resolution} \
+      ${scriptsdir}/recon-img.sh \
+      --img-dir ${imgdir} \
+      --out ${outdir}/${sub}-${mod}.nii.gz \
+      --resolution ${resolution} \
+      --glob-str ${mod}
+    done
+  done
 done
 
