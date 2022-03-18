@@ -138,34 +138,34 @@ run(){
 #   Command to be checked
 #######################################
 dependency_check(){
-	cmd=${1}
+  cmd=${1}
 
-	# Check dependency
+  # Check dependency
   if ! hash ${cmd} 2>/dev/null; then
-  	exit_error "Dependenncy: ${cmd} is not installed or added to the system path. Please check. Exiting..."
+    exit_error "Dependenncy: ${cmd} is not installed or added to the system path. Please check. Exiting..."
   fi
 }
 
 
 #######################################
 # Realpath substitute function if it is
-# 	not installed natively on UNIX system.
+#   not installed natively on UNIX system.
 # 
 # NOTE: 
-# 	* This function is conditionally 
-# 		defined - i.e. this function is only
-# 		defined if and only if the 'realpath'
-# 		UNIX executable is not installed.
-# 	* Python v2+ is REQUIRED.
+#   * This function is conditionally 
+#     defined - i.e. this function is only
+#     defined if and only if the 'realpath'
+#     UNIX executable is not installed.
+#   * Python v2+ is REQUIRED.
 # 
 # WARNING: This function does not resolve 
-# 	symlinks.
+#   symlinks.
 # 
 # Arguments:
 #   File or directory for real path.
 #######################################
 if ! hash realpath 2>/dev/null; then
-	dependency_check python
+  dependency_check python
   realpath () { $(python -c "from os.path import abspath; print(abspath('${1}'))") ; }
 fi
 
@@ -179,22 +179,22 @@ fi
 #   -t, --thresh  Values below this percentage are thresholded to 0. [optional]
 #######################################
 binarize_mri(){
-	# Set defaults
-	local thresh=15
+  # Set defaults
+  local thresh=15
 
-	while [[ ${#} -gt 0 ]]; do
-	  case "${1}" in
-	    -i|--img) shift; local img=${1} ;;
+  while [[ ${#} -gt 0 ]]; do
+    case "${1}" in
+      -i|--img) shift; local img=${1} ;;
       -o|--out) shift; local out=${1} ;;
       -t|--thresh) shift; local thresh=${1} ;;
-	    -*) echo_red "binarize_mri: Unrecognized option ${1}" >&2; ;;
-	    *) break ;;
-	  esac
-	  shift
-	done
+      -*) echo_red "binarize_mri: Unrecognized option ${1}" >&2; ;;
+      *) break ;;
+    esac
+    shift
+  done
 
-	# Binarize and threshold image
-	fslmaths ${img} -thrP ${thresh} -bin ${out}
+  # Binarize and threshold image
+  fslmaths ${img} -thrP ${thresh} -bin ${out}
 }
 
 
@@ -202,60 +202,60 @@ binarize_mri(){
 # Selects the image with the most coverage
 #   of the brain (i.e. most number of voxels).
 # NOTE: Command line flags must be placed
-# 	before the rest of the arguments.
+#   before the rest of the arguments.
 # Arguments:
 #   t, --tmp-dir  Temporary directory to use. [Optional]
 #   -no-cleanup   Do not perform clean-up. [Optional]
 #######################################
 select_best_img(){
-	# Set defaults
-	local cwd=$(pwd)
-	local tmpdir=${cwd}/tmp${RANDOM}
-	local cleanup="true"
-	local min=1000000		# This number needs to be VERY LARGE for the initial value comparison
+  # Set defaults
+  local cwd=$(pwd)
+  local tmpdir=${cwd}/tmp${RANDOM}
+  local cleanup="true"
+  local min=1000000   # This number needs to be VERY LARGE for the initial value comparison
 
-	while [[ ${#} -gt 0 ]]; do
-	  case "${1}" in
+  while [[ ${#} -gt 0 ]]; do
+    case "${1}" in
       -t|--tmp-dir) shift; local tmpdir=${1} ;;
       --no-cleanup) local cleanup="false" ;;
-	    -*) echo_red "select_best_img: Unrecognized option ${1}" >&2; ;;
-	    *) break ;;
-	  esac
-	  shift
-	done
+      -*) echo_red "select_best_img: Unrecognized option ${1}" >&2; ;;
+      *) break ;;
+    esac
+    shift
+  done
 
-	local _string="${@}"
-	local IFS=' ' 
-	read -a _arr <<< "${_string}"
-	unset IFS
+  local _string="${@}"
+  local IFS=' ' 
+  read -a _arr <<< "${_string}"
+  unset IFS
 
-	# Create temporary directory
-	if [[ ! -d ${tmpdir} ]]; then
+  # Create temporary directory
+  if [[ ! -d ${tmpdir} ]]; then
     mkdir -p ${tmpdir}
-	fi
+  fi
 
-	cd ${tmpdir}
+  cd ${tmpdir}
 
-	for img in ${_arr[@]}; do
-		local mask="mask_img_${RANDOM}.nii.gz"
-		binarize_mri --img ${img} --out ${mask} --thresh 15
-		local val=$(fslstats ${mask} -m)
+  for img in ${_arr[@]}; do
+    local mask="mask_img_${RANDOM}.nii.gz"
+    binarize_mri --img ${img} --out ${mask} --thresh 15
+    local val=$(fslstats ${mask} -m)
 
-		# if [[ ${val} -le ${min} ]]; then
-		if (( $(echo "${val} < ${min}" | bc -l) )); then
-			local min=${val}
-			local best_img=${img}
-		fi
-	done
+    # if [[ ${val} -le ${min} ]]; then
+    if (( $(echo "${val} < ${min}" | bc -l) )); then
+      local min=${val}
+      local best_img=${img}
+    fi
+  done
 
-	cd ${cwd}
+  cd ${cwd}
   echo ${best_img}
 
-	if [[ ${cleanup} == "true" ]]; then
-		local tmpdir=$(realpath ${tmpdir})
-		chmod -R 755 ${tmpdir}
-		rm -rf ${tmpdir}
-	fi
+  if [[ ${cleanup} == "true" ]]; then
+    local tmpdir=$(realpath ${tmpdir})
+    chmod -R 755 ${tmpdir}
+    rm -rf ${tmpdir}
+  fi
 }
 
 
@@ -266,7 +266,7 @@ select_best_img(){
 #   err
 #######################################
 main(){
-	#
+  #
   # Parse arguments
   #============================
   
@@ -281,22 +281,22 @@ main(){
   local glob_str=""
   local iterations=3
 
-	while [[ ${#} -gt 0 ]]; do
-	  case "${1}" in
-	    -i|--img-dir) shift; local img_dir=${1} ;;
-			-o|--out) shift; local out=${1} ;;
-			-g|--glob-str) shift; local glob_str="${1}" ;;
-			-r|--resolution) shift; local resolution=${1} ;;
-			--iterations) shift; local iterations=${1} ;;
-			--no-cleanup) local cleanup="false"; local cleanup_flag="--no-cleanup" ;;
+  while [[ ${#} -gt 0 ]]; do
+    case "${1}" in
+      -i|--img-dir) shift; local img_dir=${1} ;;
+      -o|--out) shift; local out=${1} ;;
+      -g|--glob-str) shift; local glob_str="${1}" ;;
+      -r|--resolution) shift; local resolution=${1} ;;
+      --iterations) shift; local iterations=${1} ;;
+      --no-cleanup) local cleanup="false"; local cleanup_flag="--no-cleanup" ;;
       -h|-help|--help) Usage; ;;
-	    -*) echo_red "$(basename ${0}): Unrecognized option ${1}" >&2; Usage; ;;
-	    *) break ;;
-	  esac
-	  shift
-	done
+      -*) echo_red "$(basename ${0}): Unrecognized option ${1}" >&2; Usage; ;;
+      *) break ;;
+    esac
+    shift
+  done
 
- 	#
+  #
   # Dependency checks
   #============================
 
@@ -306,29 +306,29 @@ main(){
     dependency_check ${dep}
   done
 
- 	#
+  #
   # Check arguments
   #============================
   
   if [[ -z ${img_dir} ]] || [[ ! -d ${img_dir} ]]; then
-  	exit_error "Image directory was not specified or does not exist."
+    exit_error "Image directory was not specified or does not exist."
   fi
 
   if [[ -z ${out} ]]; then
-  	exit_error "Output image not specified."
+    exit_error "Output image not specified."
   fi
 
   if [[ ! -z ${resolution} ]]; then
-  	local resolution=$(python -c "print(round(${resolution},3))")
+    local resolution=$(python -c "print(round(${resolution},3))")
   else
-  	exit_error "Resolution was not specified."
-	fi
+    exit_error "Resolution was not specified."
+  fi
 
-	if [[ ! -z ${iterations} ]]; then
-  	local iterations=$(python -c "print(int('${iterations}'))")
+  if [[ ! -z ${iterations} ]]; then
+    local iterations=$(python -c "print(int('${iterations}'))")
   else
-  	exit_error "Number of iterations were not specified."
-	fi
+    exit_error "Number of iterations were not specified."
+  fi
 
   #
   # Create output directory
@@ -347,7 +347,7 @@ main(){
 
   cd ${tmpdir}
 
-	#
+  #
   # Create image list
   #============================
 
@@ -370,18 +370,18 @@ main(){
 
   echo "Slice thickness (mm)" >> ${log}
 
-	for i in ${imgs[@]}; do
-		local _z=$(fslval ${i} pixdim3)
-		local z=$(python -c "print(round(${_z},3))")
-		local thick=( ${thick[@]} ${z} )
+  for i in ${imgs[@]}; do
+    local _z=$(fslval ${i} pixdim3)
+    local z=$(python -c "print(round(${_z},3))")
+    local thick=( ${thick[@]} ${z} )
 
     # Log information
     echo "${z} mm: ${i}" >> ${log}
-	done
+  done
 
   echo "" >> ${log}
 
- 	#
+  #
   # Select template image
   #============================
 
