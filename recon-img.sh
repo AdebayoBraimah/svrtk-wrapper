@@ -185,8 +185,8 @@ binarize_mri(){
 	while [[ ${#} -gt 0 ]]; do
 	  case "${1}" in
 	    -i|--img) shift; local img=${1} ;;
-			-o|--out) shift; local out=${1} ;;
-			-t|--thresh) shift; local thresh=${1} ;;
+      -o|--out) shift; local out=${1} ;;
+      -t|--thresh) shift; local thresh=${1} ;;
 	    -*) echo_red "binarize_mri: Unrecognized option ${1}" >&2; ;;
 	    *) break ;;
 	  esac
@@ -216,8 +216,8 @@ select_best_img(){
 
 	while [[ ${#} -gt 0 ]]; do
 	  case "${1}" in
-	    -t|--tmp-dir) shift; local tmpdir=${1} ;;
-			--no-cleanup) local cleanup="false" ;;
+      -t|--tmp-dir) shift; local tmpdir=${1} ;;
+      --no-cleanup) local cleanup="false" ;;
 	    -*) echo_red "select_best_img: Unrecognized option ${1}" >&2; ;;
 	    *) break ;;
 	  esac
@@ -231,7 +231,7 @@ select_best_img(){
 
 	# Create temporary directory
 	if [[ ! -d ${tmpdir} ]]; then
-		mkdir -p ${tmpdir}
+    mkdir -p ${tmpdir}
 	fi
 
 	cd ${tmpdir}
